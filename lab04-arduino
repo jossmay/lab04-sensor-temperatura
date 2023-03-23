@@ -1,0 +1,49 @@
+#include <DHT.h>
+#include <DHT_U.h>
+
+#define tipoSensor DHT11 //Definimos el tipo de sensor.
+int dhtPin = 2; //Definimos el pin digital al cual está conectado el sensor.
+
+int retraso = 1000; //1000ms = 1seg.
+
+DHT HT(dhtPin, tipoSensor); //Inicializamos el sensor.
+
+//Variables donde se guardarán los datos obtenidos.
+float tempC;
+float tempF;
+float humedad;
+
+void setup() {
+  Serial.begin(9600); //Iniciar la comunicación serial.
+  HT.begin(); //Iniciar el sensor DHT.
+}
+
+void loop() {
+  tempC = HT.readTemperature();
+  tempF = HT.readTemperature(true);
+  humedad = HT.readHumidity();
+
+  //Para mostrarlo en el monitor serial.
+  Serial.print("Temperatura: ");
+  Serial.print(tempC);
+  Serial.print(" °C / ");
+  Serial.print(tempF);
+  Serial.print(" °F | ");
+  Serial.print("Humedad: ");
+  Serial.print(humedad);
+  Serial.println(" %");
+
+  //Para el processing con letras rojas y fondo negro.
+ /* Serial.print(tempC);
+  Serial.print(" C    ");
+  Serial.print(tempF);
+  Serial.print(" F                  ");
+  Serial.print(humedad);
+  Serial.println(" %");*/
+
+  //Para la gráfica de barras.  
+  /*Serial.print(char(tempC)); //PRUEBA PARA GRAFICAR
+  Serial.print(char(tempF)); //PRUEBA PARA GRAFICAR
+  Serial.print(char(humedad)); //PRUEBA PARA GRAFICAR*/
+  delay(retraso);
+}
