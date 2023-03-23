@@ -1,0 +1,70 @@
+import de.bezier.data.sql.*;
+import de.bezier.data.sql.mapper.*;
+
+import processing.serial.*;
+MySQL msql;
+
+int[] xvals;
+int[] xvals2;
+
+int temperatura;
+int humedad;
+int fa;
+Serial myPort;
+
+void setup() {
+  size(700, 500);
+
+  xvals=new int [width];
+  xvals2=new int [height];
+
+  PFont font;
+  font=createFont("Arial", 28);
+  textFont(font);
+  String port=Serial.list()[0];
+  myPort=new Serial(this, port, 9600);
+  //myPort.bufferUntil('\n');
+
+  //Insertar a BD
+  String user = "root";
+  String pass = "umg123";
+  String database = "arduino";
+
+  msql = new MySQL(this, "localhost", database, user, pass);
+  if (msql.connect()) {
+    println("Conectado");
+    msql.execute("INSERT INTO tempSensor (Temperatura, Humedad) VALUES (" + temperatura + ");");
+    while (msql.next()) {
+      println(msql.getFloat(2)+ msql.getFloat(""));
+    }
+  } else {
+    println("Fallo");
+  }
+}
+
+void draw() {
+  background(#FF0D0D);
+
+  while (myPort.available()>0) {
+    temperatura=myPort.read();
+    fa=myPort.read();
+    humedad=myPort.read();
+  }
+
+  textAlign(CENTER);
+  text("Temperatura: "+temperatura+" °C / ", 200, 100);
+  text(fa+" °F", 370, 100);
+  text("Humedad: "+humedad+" %", 167, 140);
+
+  for (int i=1; i<width; i++) {
+    xvals[i-1]=xvals[i];
+  }
+
+  xvals[width-1] = temperatura;
+
+  for (int i=1; i<width; i+=3) {
+    stroke(0);
+    strokeWeight(5);
+    point(i, 255-xvals[i]);
+  }
+}
